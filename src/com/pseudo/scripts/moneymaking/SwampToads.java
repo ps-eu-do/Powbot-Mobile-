@@ -1,10 +1,8 @@
 package com.pseudo.scripts.moneymaking;
 
-import com.google.common.eventbus.Subscribe;
 import org.powbot.api.Condition;
 import org.powbot.api.Random;
 import org.powbot.api.Tile;
-import org.powbot.api.event.InventoryChangeEvent;
 import org.powbot.api.rt4.*;
 import org.powbot.api.script.AbstractScript;
 import org.powbot.api.script.ScriptCategory;
@@ -25,8 +23,6 @@ public class SwampToads extends AbstractScript {
     private State state = null;
     private Player local;
 
-    private int collected = 0;
-
     public static void main(String[] args) {
         new ScriptUploader().uploadAndStart("Swamp Toads", "", "bbbf854", true, true);
     }
@@ -39,12 +35,7 @@ public class SwampToads extends AbstractScript {
                     public String call() throws Exception {
                         return state.toString();
                     }
-                }).addString("Toads collected: ", new Callable<String>() {
-                    @Override
-                    public String call() throws Exception {
-                        return "" + collected;
-                    }
-                })
+                }).trackInventoryItem(2150, "Swamp toad")
                 .build();
         addPaint(paint);
         super.onStart();
@@ -113,9 +104,8 @@ public class SwampToads extends AbstractScript {
 
     private State getState() {
         if (Inventory.isFull()) {
-            if (local.tile().getFloor() > 0) {
-                return State.BANK;
-            } else if (local.tile().distanceTo(bottomOfStaircase) < 10) {
+            if (local.tile().getFloor() > 0) return State.BANK;
+            else if (local.tile().distanceTo(bottomOfStaircase) < 10) {
                 return State.CLIMB_UP_STAIRS;
             } else return State.WALK_TO_STAIRS;
         } else {
@@ -129,23 +119,15 @@ public class SwampToads extends AbstractScript {
 
     private boolean climbStairs(boolean up) {
         GameObject stairs = Objects.stream().within(10).name("Staircase").nearest().first();
-        if (!validateObject(stairs) || !local.valid()) return false;
+        if (!stairs.valid() || !local.valid()) return false;
         int plane = local.tile().getFloor();
 
         return (up ? stairs.interact("Climb-up") : stairs.interact("Climb-down"));
     }
 
-    private boolean validateObject(GameObject object) {
-        return object != null && object.valid();
-    }
-
-    private boolean validateGroundItem(GroundItem groundItem) {
-        return groundItem != null && groundItem.valid() && groundItem.reachable();
-    }
-
     private boolean collectToads() {
         GroundItem swampToad = GroundItems.stream().within(15).name("Swamp toad").nearest().first();
-        if (!validateGroundItem(swampToad) || !local.valid()) return false;
+        if (!swampToad.valid() || !local.valid()) return false;
         targetToadTile = swampToad.getTile();
         if (swampToad.inViewport()) {
             return swampToad.interact("Take");
@@ -157,7 +139,7 @@ public class SwampToads extends AbstractScript {
 
     private boolean doBanking() {
         GameObject bankBooth = Objects.stream().within(15).name("Bank booth").nearest().first();
-        if (!validateObject(bankBooth)) return false;
+        if (!bankBooth.valid()) return false;
         if (Bank.opened()) {
             if (!Inventory.isEmpty()) {
                 if (Bank.depositInventory()) {
@@ -168,11 +150,5 @@ public class SwampToads extends AbstractScript {
         return false;
     }
 
-    @Subscribe
-    public void onInventoryChange(InventoryChangeEvent inventoryChangeEvent) {
-        if (inventoryChangeEvent.getQuantityChange() > 0) {
-            collected++;
-        }
-    }
 
 }

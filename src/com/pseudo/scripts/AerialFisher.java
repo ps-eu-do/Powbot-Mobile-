@@ -19,7 +19,6 @@ import org.powbot.mobile.service.ScriptUploader;
 public class AerialFisher extends AbstractScript {
 
     private final String[] junkFish = {"Bluegill", "Common tench", "Mottled eel", "Greater siren"};
-    private final String[] bait = {"Fish chunks", "King worm"};
 
     private boolean hasBird = true;
 
@@ -40,49 +39,52 @@ public class AerialFisher extends AbstractScript {
         ItemStream<InventoryItemStream> inventoryItems = Inventory.stream();
 
         if (inventoryItems.count() <= 27) {
-            if (hasBait(inventoryItems)) {
+            if (hasBait()) {
                 Npc fishingSpot = Npcs.stream().within(10).name("Fishing spot").nearest().first();
-                if (fishingSpot != null && fishingSpot.valid()) {
-                    if (fishingSpot.inViewport() && hasBird) {
-                        if (fishingSpot.interact("Catch")) {
-                            Condition.wait(() -> !hasBird, Random.nextInt(300, 1200), Random.nextInt(1, 3));
-                        }
+                if (!fishingSpot.valid()) return;
+                if (!hasBird) return;
+                if (fishingSpot.inViewport()) {
+                    if (fishingSpot.interact("Catch")) {
+                        Condition.wait(() -> !hasBird, Random.nextInt(300, 1200), Random.nextInt(1, 3));
+                        return;
                     }
+                } else {
+                    Movement.walkTo(fishingSpot);
                 }
             } else {
 
                 Item fish = inventoryItems.name(junkFish).first();
 
-                if (validateItem(fish)) {
+                if (fish.valid()) {
                     cutFish(junkFish);
-                } else {
-                    GroundItem kingWormGroundItem = GroundItems.stream().name("King worm").nearest().first();
-                    if (kingWormGroundItem != null && kingWormGroundItem.valid()) {
-                        if (kingWormGroundItem.interact("Take")) {
-                            Condition.wait(() -> Inventory.stream().filter(i -> i.name().equals("King worm")).first() != null, 5000, 2);
-                        }
-                    }
+                } else if (lootWorm()) {
+                    Condition.wait(() -> Inventory.stream().filter(i -> i.name().equals("King worm")).first() != null, 5000, 2);
+                    return;
                 }
             }
         } else {
-            cutFish(junkFish);
+            if (cutFish(junkFish)) Condition.wait(() -> hasBird, Random.nextInt(600, 1200), Random.nextInt(1, 3));
+            return;
         }
         if (!hasBird) cutFish(junkFish);
     }
 
-    private void cutFish(String[] fishNames) {
+    private boolean lootWorm() {
+        GroundItem kingWormGroundItem = GroundItems.stream().within(10).name("King worm").nearest().first();
+        if (!kingWormGroundItem.valid()) return false;
+        return kingWormGroundItem.interact("Take");
+    }
+
+    private boolean cutFish(String[] fishNames) {
         Item fish = Inventory.stream().name(fishNames).first();
         Item knife = Inventory.stream().name("Knife").first();
-        if (validateItem(fish) && validateItem(knife)) {
-            if (Inventory.opened()) {
-                if (knife.click()) {
-                    Condition.wait(() -> Inventory.selectedItemIndex() != -1, Random.nextInt(200, 400), Random.nextInt(1, 3));
-                    if (fish.click()) {
-                        Condition.wait(() -> hasBird, Random.nextInt(600, 1200), Random.nextInt(1, 3));
-                    }
-                }
-            } else Inventory.open();
+        if (!fish.valid() || !knife.valid()) return false;
+        if (!Inventory.opened()) return Inventory.open();
+        if (knife.click()) {
+            Condition.wait(() -> Inventory.selectedItemIndex() != -1, Random.nextInt(200, 400), Random.nextInt(1, 3));
+            return fish.click();
         }
+        return false;
     }
 
     @Subscribe
@@ -95,13 +97,10 @@ public class AerialFisher extends AbstractScript {
         }
     }
 
-    private boolean hasBait(ItemStream<InventoryItemStream> inventoryItemStream) {
+    private boolean hasBait() {
         Item worm = Inventory.stream().name("King worm").first();
         Item chunks = Inventory.stream().name("Fish chunks").first();
-        return validateItem(worm) || validateItem(chunks);
+        return worm.valid() || chunks.valid();
     }
 
-    private boolean validateItem(Item item) {
-        return item != null && item.valid();
-    }
 }
