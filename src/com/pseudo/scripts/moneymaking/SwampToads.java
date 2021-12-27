@@ -53,7 +53,7 @@ public class SwampToads extends AbstractScript {
                 if (!Bank.opened()) {
                     if (climbStairs(false)) {
                         int plane = local.tile().getFloor();
-                        Condition.wait(() -> Players.local().tile().getFloor() != plane, Random.nextInt(4000, 7000), 1);
+                        Condition.wait(() -> Players.local().tile().getFloor() != plane, Random.nextInt(300, 600), 10);
                     }
                 } else {
                     if (Bank.close()) {
@@ -64,7 +64,7 @@ public class SwampToads extends AbstractScript {
             case CLIMB_UP_STAIRS:
                 if (climbStairs(true)) {
                     int plane = local.tile().getFloor();
-                    Condition.wait(() -> Players.local().tile().getFloor() != plane, Random.nextInt(4000, 7000), 1);
+                    Condition.wait(() -> Players.local().tile().getFloor() != plane, Random.nextInt(300, 600), 10);
                 }
                 break;
             case WALK_TO_STAIRS:
@@ -75,7 +75,7 @@ public class SwampToads extends AbstractScript {
                 break;
             case COLLECT:
                 if (collectToads()) {
-                    Condition.wait(() -> Players.local().tile().equals(targetToadTile), Random.nextInt(1800, 3000), 2);
+                    Condition.wait(() -> Players.local().tile().equals(targetToadTile), Random.nextInt(300, 600), 10);
                 }
                 break;
             case BANK:
@@ -143,7 +143,7 @@ public class SwampToads extends AbstractScript {
         if (Bank.opened()) {
             if (!Inventory.isEmpty()) {
                 if (Bank.depositInventory()) {
-                    Condition.wait(Inventory::isEmpty, 3000, 3);
+                    Condition.wait(Inventory::isEmpty, Random.nextInt(300, 600), 10);
                 }
             } else return Bank.close();
         } else return Bank.open();

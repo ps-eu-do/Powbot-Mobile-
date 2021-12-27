@@ -45,7 +45,7 @@ public class AerialFisher extends AbstractScript {
                 if (!hasBird) return;
                 if (fishingSpot.inViewport()) {
                     if (fishingSpot.interact("Catch")) {
-                        Condition.wait(() -> !hasBird, Random.nextInt(300, 1200), Random.nextInt(1, 3));
+                        Condition.wait(() -> !hasBird, Random.nextInt(200, 4400), Random.nextInt(4, 8));
                         return;
                     }
                 } else {
@@ -58,12 +58,12 @@ public class AerialFisher extends AbstractScript {
                 if (fish.valid()) {
                     cutFish(junkFish);
                 } else if (lootWorm()) {
-                    Condition.wait(() -> Inventory.stream().filter(i -> i.name().equals("King worm")).first() != null, 5000, 2);
+                    Condition.wait(() -> Inventory.stream().filter(i -> i.name().equals("King worm")).first() != null, 300, 15);
                     return;
                 }
             }
         } else {
-            if (cutFish(junkFish)) Condition.wait(() -> hasBird, Random.nextInt(600, 1200), Random.nextInt(1, 3));
+            if (cutFish(junkFish)) Condition.wait(() -> hasBird, Random.nextInt(200, 400), Random.nextInt(4, 8));
             return;
         }
         if (!hasBird) cutFish(junkFish);
@@ -81,7 +81,7 @@ public class AerialFisher extends AbstractScript {
         if (!fish.valid() || !knife.valid()) return false;
         if (!Inventory.opened()) return Inventory.open();
         if (knife.click()) {
-            Condition.wait(() -> Inventory.selectedItemIndex() != -1, Random.nextInt(200, 400), Random.nextInt(1, 3));
+            Condition.wait(() -> Inventory.selectedItemIndex() != -1, Random.nextInt(200, 400), Random.nextInt(3, 5));
             return fish.click();
         }
         return false;
