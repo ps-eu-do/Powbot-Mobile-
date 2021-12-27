@@ -32,7 +32,7 @@ public class Banking extends Node {
     @Override
     public void execute() {
         if (Bank.opened()) {
-            Item plank = Inventory.stream().filter(i -> i.name().contains("lank")).first();
+            Item plank = Inventory.stream().filtered(i -> i.name().toLowerCase().contains("plank")).first();
             if (plank.valid()) {
                 if (Bank.deposit(plank.name(), 0)) {
                     Condition.wait(() -> !plank.valid(), 800, 1);
@@ -52,16 +52,18 @@ public class Banking extends Node {
                     return;
                 }
 
-                if (!Bank.stream().name(pvpPlanker.logName).first().valid()) pvpPlanker.controller.stop();
+                if (!Bank.stream().name(pvpPlanker.logName).first().valid()) {
+                    pvpPlanker.controller.stop();
+                }
 
                 if (Bank.withdraw(pvpPlanker.logName, 0)) {
-                    Condition.wait(() -> Inventory.stream().name(pvpPlanker.logName).first().valid(), Random.nextInt(400, 600), 1);
+                    Condition.wait(() -> Inventory.stream().name(pvpPlanker.logName).first().valid(), Random.nextInt(400, 600), 6);
                 }
             }
         } else {
             GameObject bankChest = Objects.stream().within(15).name("Bank chest").nearest().first();
             if (bankChest.valid() && bankChest.interact("Use")) {
-                Condition.wait(Bank::opened, Random.nextInt(600, 1200), 2);
+                Condition.wait(Bank::opened, Random.nextInt(200, 600), 8);
             }
         }
     }
@@ -70,7 +72,7 @@ public class Banking extends Node {
         int coinsToWithdraw = itemHandler.getCoinsToWithdraw();
         if (Bank.stream().name("Coins").first().stackSize() >= coinsToWithdraw) {
             if (itemHandler.withdrawCoins(coinsToWithdraw)) {
-                return Condition.wait(itemHandler::hasEnoughCoins, 600, 1);
+                return Condition.wait(itemHandler::hasEnoughCoins, 300, 6);
             }
         } else {
             pvpPlanker.controller.stop();
@@ -81,7 +83,7 @@ public class Banking extends Node {
     private boolean withdrawLaws() {
         if (Bank.stream().name("Law rune").first().stackSize() >= 2) {
             if (itemHandler.withdrawLaws()) {
-                return Condition.wait(itemHandler::hasEnoughLaws, 600, 1);
+                return Condition.wait(itemHandler::hasEnoughLaws, 300, 6);
             }
         } else {
             pvpPlanker.controller.stop();

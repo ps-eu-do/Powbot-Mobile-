@@ -37,7 +37,7 @@ public class PvpPlanker extends AbstractScript {
     public String logName = "";
 
     public static void main(String[] args) {
-        new ScriptUploader().uploadAndStart("Λ PvP Planker", "", "bbbf854", true, false);
+        new ScriptUploader().uploadAndStart("Λ PvP Planker", "", "bbbf854", true, true);
     }
 
 

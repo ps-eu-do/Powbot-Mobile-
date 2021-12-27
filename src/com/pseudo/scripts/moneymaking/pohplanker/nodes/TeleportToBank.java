@@ -3,22 +3,20 @@ package com.pseudo.scripts.moneymaking.pohplanker.nodes;
 import com.pseudo.scripts.moneymaking.pohplanker.PvpPlanker;
 import com.pseudo.scripts.moneymaking.pohplanker.fw.Node;
 import com.pseudo.scripts.moneymaking.pohplanker.fw.logic.ButlerHandler;
-import com.pseudo.scripts.moneymaking.pohplanker.fw.logic.TeleportHandler;
 import org.powbot.api.Condition;
 import org.powbot.api.Random;
-import org.powbot.api.rt4.Bank;
+import org.powbot.api.rt4.Game;
+import org.powbot.api.rt4.Magic;
 
 public class TeleportToBank extends Node {
 
     private final PvpPlanker pvpPlanker;
     private final ButlerHandler butlerHandler;
-    private final TeleportHandler teleportHandler;
 
     public TeleportToBank(PvpPlanker pvpPlanker) {
         super(pvpPlanker);
         this.pvpPlanker = pvpPlanker;
         this.butlerHandler = new ButlerHandler(pvpPlanker);
-        this.teleportHandler = new TeleportHandler(pvpPlanker);
     }
 
     @Override
@@ -29,8 +27,9 @@ public class TeleportToBank extends Node {
     @Override
     public void execute() {
 
-        if (teleportHandler.teleportToBank())
-            Condition.wait(butlerHandler::isInHouse, Random.nextInt(900, 1500), 1);
+        if (Game.tab(Game.Tab.MAGIC) && Magic.Spell.LUMBRIDGE_TELEPORT.cast()) {
+            Condition.wait(() -> !butlerHandler.isInHouse(), Random.nextInt(300, 600), 10);
+        }
 
     }
 

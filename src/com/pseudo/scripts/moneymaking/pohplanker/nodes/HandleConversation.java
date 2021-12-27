@@ -16,7 +16,6 @@ public class HandleConversation extends Node {
 
     @Override
     public boolean validate() {
-       // System.out.println("Is in chat: " + butlerHandler.isInConvo());
         return butlerHandler.isInConvo();
     }
 

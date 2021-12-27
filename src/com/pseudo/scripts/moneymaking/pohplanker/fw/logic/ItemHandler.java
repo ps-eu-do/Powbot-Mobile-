@@ -3,7 +3,6 @@ package com.pseudo.scripts.moneymaking.pohplanker.fw.logic;
 import com.pseudo.scripts.moneymaking.pohplanker.PvpPlanker;
 import org.powbot.api.Random;
 import org.powbot.api.rt4.Bank;
-import org.powbot.api.rt4.Inventory;
 import org.powbot.api.rt4.Item;
 
 public class ItemHandler {
@@ -53,7 +52,7 @@ public class ItemHandler {
 
     public enum Plank {
         PLANK("Logs", "Plank", 100),
-        OAK_PLANK("Oak logs", "Oak plank", 2500),
+        OAK_PLANK("Oak logs", "Oak plank", 250),
         TEAK_PLANK("Teak logs", "Teak plank", 500),
         MAHOGANY_PLANK("Mahogany logs", "Mahogany plank", 1500);
 
