@@ -35,8 +35,13 @@ public class TeleportToHouse extends Node {
             }
         }
 
-        if (Game.tab(Game.Tab.MAGIC) && Magic.Spell.TELEPORT_TO_HOUSE.cast()) {
-            Condition.wait(butlerHandler::isInHouse, Random.nextInt(300, 600), 10);
+        if (Game.tab(Game.Tab.MAGIC)) {
+            if (Magic.Spell.TELEPORT_TO_HOUSE.canCast() && Magic.Spell.TELEPORT_TO_HOUSE.cast()) {
+                Condition.wait(butlerHandler::isInHouse, Random.nextInt(300, 600), 10);
+            } else {
+                System.out.println("Can't teleport - terminating for safety");
+                pvpPlanker.controller.stop();
+            }
         }
 
     }

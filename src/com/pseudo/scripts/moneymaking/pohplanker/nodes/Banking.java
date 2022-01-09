@@ -11,8 +11,6 @@ import org.powbot.api.rt4.*;
 
 public class Banking extends Node {
 
-    private int startPlanks = -1;
-
     private final ButlerHandler butlerHandler;
     private final PvpPlanker pvpPlanker;
     private final ItemHandler itemHandler;
@@ -26,7 +24,7 @@ public class Banking extends Node {
 
     @Override
     public boolean validate() {
-        return !Inventory.stream().name(pvpPlanker.logName).first().valid() && !butlerHandler.isInHouse();
+        return Inventory.stream().name(pvpPlanker.logName).isEmpty() && !butlerHandler.isInHouse();
     }
 
     @Override
@@ -35,7 +33,7 @@ public class Banking extends Node {
             Item plank = Inventory.stream().filtered(i -> i.name().toLowerCase().contains("plank")).first();
             if (plank.valid()) {
                 if (Bank.deposit(plank.name(), 0)) {
-                    Condition.wait(() -> !plank.valid(), 800, 1);
+                    Condition.wait(() -> !plank.valid(), 200, 20);
                 }
             } else {
 
@@ -54,23 +52,30 @@ public class Banking extends Node {
 
                 if (!Bank.stream().name(pvpPlanker.logName).first().valid()) {
                     pvpPlanker.controller.stop();
-                }
-
-                if (Bank.withdraw(pvpPlanker.logName, 0)) {
-                    Condition.wait(() -> Inventory.stream().name(pvpPlanker.logName).first().valid(), Random.nextInt(400, 600), 6);
+                } else {
+                    if (Bank.withdraw(pvpPlanker.logName, 0)) {
+                        Condition.wait(() -> !Inventory.stream().name(pvpPlanker.logName).isEmpty(), Random.nextInt(200, 400), 20);
+                    }
                 }
             }
         } else {
             GameObject bankChest = Objects.stream().within(15).name("Bank chest").nearest().first();
-            if (bankChest.valid() && bankChest.interact("Use")) {
-                Condition.wait(Bank::opened, Random.nextInt(200, 600), 8);
+            if (bankChest.valid()) {
+                if (bankChest.inViewport()) {
+                    if (bankChest.interact("Use")) {
+                        Condition.wait(Bank::opened, Random.nextInt(200, 600), 20);
+                    }
+                } else {
+                    Camera.turnTo(bankChest);
+                }
             }
         }
     }
 
     private boolean withdrawCoins() {
         int coinsToWithdraw = itemHandler.getCoinsToWithdraw();
-        if (Bank.stream().name("Coins").first().stackSize() >= coinsToWithdraw) {
+        Item coins = Bank.stream().name("Coins").first();
+        if (coins.valid() && coins.stackSize() >= coinsToWithdraw) {
             if (itemHandler.withdrawCoins(coinsToWithdraw)) {
                 return Condition.wait(itemHandler::hasEnoughCoins, 300, 6);
             }
@@ -81,7 +86,8 @@ public class Banking extends Node {
     }
 
     private boolean withdrawLaws() {
-        if (Bank.stream().name("Law rune").first().stackSize() >= 2) {
+        Item lawRune = Bank.stream().name("Law rune").first();
+        if (lawRune.valid() && lawRune.stackSize() >= 2) {
             if (itemHandler.withdrawLaws()) {
                 return Condition.wait(itemHandler::hasEnoughLaws, 300, 6);
             }

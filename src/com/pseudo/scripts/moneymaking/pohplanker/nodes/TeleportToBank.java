@@ -27,8 +27,13 @@ public class TeleportToBank extends Node {
     @Override
     public void execute() {
 
-        if (Game.tab(Game.Tab.MAGIC) && Magic.Spell.LUMBRIDGE_TELEPORT.cast()) {
-            Condition.wait(() -> !butlerHandler.isInHouse(), Random.nextInt(300, 600), 10);
+        if (Game.tab(Game.Tab.MAGIC)) {
+            if (Magic.Spell.LUMBRIDGE_TELEPORT.canCast() && Magic.Spell.LUMBRIDGE_TELEPORT.cast()) {
+                Condition.wait(() -> !butlerHandler.isInHouse(), Random.nextInt(300, 600), 10);
+            } else {
+                System.out.println("Can't teleport - terminating for safety");
+                pvpPlanker.controller.stop();
+            }
         }
 
     }

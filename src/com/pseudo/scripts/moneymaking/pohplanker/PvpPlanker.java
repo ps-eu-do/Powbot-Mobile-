@@ -9,7 +9,6 @@ import org.powbot.mobile.service.ScriptUploader;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 @ScriptManifest(name = "Λ PvP Planker",
         description = "Crafts planks using your butler and banking at the appropriate bank chest on the PvP worlds",
@@ -37,7 +36,7 @@ public class PvpPlanker extends AbstractScript {
     public String logName = "";
 
     public static void main(String[] args) {
-        new ScriptUploader().uploadAndStart("Λ PvP Planker", "", "bbbf854", true, true);
+        new ScriptUploader().uploadAndStart("Λ PvP Planker", "", "bbbf854", true, false);
     }
 
 
@@ -59,17 +58,7 @@ public class PvpPlanker extends AbstractScript {
         nodes.add(new Banking(this));
         nodes.add(new TeleportToBank(this));
         nodes.add(new TeleportToHouse(this));
-        final Paint paint = PaintBuilder.newBuilder().addString("Status: ", new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return status;
-            }
-        }).addString("Planks made: ", new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return "" + plankCount + " (" + getPerHour(plankCount, controller.getRuntime(true)) + ")";
-            }
-        }).build();
+        final Paint paint = PaintBuilder.newBuilder().addString("Status: ", () -> status).addString("Planks made: ", () -> "" + plankCount + " (" + getPerHour(plankCount, controller.getRuntime(true)) + ")").build();
         addPaint(paint);
         System.out.println("" + getOption("Input log"));
         logName = getOption("Input log");
@@ -78,5 +67,6 @@ public class PvpPlanker extends AbstractScript {
     private long getPerHour(long input, long elapsed) {
         return (int) ((input) * 3600000D / elapsed);
     }
+
 
 }

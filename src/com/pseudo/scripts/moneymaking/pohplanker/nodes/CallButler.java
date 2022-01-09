@@ -24,13 +24,15 @@ public class CallButler extends Node {
     @Override
     public void execute() {
 
-        //Fail safe start
-        GameObject portal = Objects.stream().within(15).name("Portal").action("Build mode").first();
+        //Fail safe (for if we end up outside house)
+        GameObject portal = Objects.stream().within(15).name("Portal").action("Home").first();
         if (portal.valid()) {
-            for (String s : portal.actions()) {
-                if (s != null && s.contains("Home")) {
-                    if (portal.interact("Home")) Condition.wait(butlerHandler::isInHouse, 400, 5);
+            if (portal.inViewport()) {
+                if (portal.interact("Home")) {
+                    Condition.wait(butlerHandler::isInHouse, 400, 20);
                 }
+            } else {
+                Camera.turnTo(portal);
             }
         }
         //End
@@ -40,8 +42,12 @@ public class CallButler extends Node {
             }
             Npc butler = Npcs.stream().filtered(i -> i.name().toLowerCase().contains("butler")).first();
             if (!butlerHandler.isInConvo() && butler.valid() && butler.tile().distanceTo(Players.local()) <= 3) {
-                if (butler.interact("Talk-to")) {
-                    Condition.wait(butlerHandler::isInConvo, 600, 10);
+                if (butler.inViewport()) {
+                    if (butler.interact("Talk-to")) {
+                        Condition.wait(butlerHandler::isInConvo, 600, 10);
+                    }
+                } else {
+                    Camera.turnTo(butler);
                 }
             }
         } else {

@@ -105,7 +105,6 @@ public class ButlerHandler {
     public boolean useItemOnNpc(String itemNameContains, Npc npc) {
         Item item = Inventory.stream().filtered(i -> i.name().contains(itemNameContains)).first();
         if (!item.valid() || !npc.valid()) return false;
-        System.out.println("Interacting with butler");
         if (!npc.inViewport()) Camera.turnTo(npc);
         if (Inventory.selectedItemIndex() == -1) {
             if (Game.tab(Game.Tab.INVENTORY)) {
